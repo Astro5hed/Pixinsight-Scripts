@@ -24,7 +24,7 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 
 1. In PixInsight choose *Resources > Updates > Manage Repositories*.
 2. Press *Add* and enter:
-   `https://raw.githubusercontent.com/USERNAME/AstroShed-PixInsight-Scripts/main/repository/`
+   `https://raw.githubusercontent.com/Astro5hed/AstroShed-PixInsight-Scripts/main/repository/`
 3. Choose *Resources > Updates > Check for Updates*, install, and restart PixInsight when asked.
 4. The script is under *Script > Utilities > DustLaneEnhancer*.
 
