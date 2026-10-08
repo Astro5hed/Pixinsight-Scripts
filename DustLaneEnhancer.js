@@ -1,5 +1,5 @@
 // ============================================================================
-// Dust Lane Enhancer  -  version 1.2.6
+// Dust Lane Enhancer  -  version 1.2.7
 //
 // Deepens dust lanes and dark filaments. It finds them by SHAPE (long, dark
 // ridges) and not by brightness, then darkens only where it found one.
@@ -30,7 +30,7 @@
 // nothing added - exactly what Run gives there.
 // ============================================================================
 
-#feature-id    DustLaneEnhancer : Utilities > DustLaneEnhancer
+#feature-id    DustLaneEnhancer : AstroShed > Dust Lane Enhancer
 #feature-icon  @script_icons_dir/DustLaneEnhancer.svg
 #feature-info  Deepens dust lanes and dark filaments, found by their shape \
                rather than their brightness. Works on the active image and \
@@ -47,7 +47,7 @@
 #include <pjsr/SampleType.jsh>
 
 #define DLE_TITLE    "Dust Lane Enhancer"
-#define DLE_VERSION  "1.2.6"
+#define DLE_VERSION  "1.2.7"
 #define DLE_KEY      "DustLaneEnhancer/"
 
 // ============================================================================

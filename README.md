@@ -26,7 +26,7 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 2. Press *Add* and enter:
    `https://raw.githubusercontent.com/Astro5hed/Pixinsight-Scripts/main/repository/`
 3. Choose *Resources > Updates > Check for Updates*, install, and restart PixInsight when asked.
-4. The script is under *Script > Utilities > DustLaneEnhancer*.
+4. The script is under *Script > AstroShed > Dust Lane Enhancer*.
 
 **By hand**
 
@@ -35,8 +35,8 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 
 ### Versions
 
-- **1.2.6** - the icon is installed where PixInsight looks for it.
-- **1.2.5** - icon placement corrected.
+- **1.2.7** - its own AstroShed folder in the Script menu, and its icon now shows.
+- **1.2.4 - 1.2.6** - icon work.
 - **1.2.4** - added its own icon.
 - **1.2.3** - removed a harmless warning shown in the console when the script starts.
 - **1.2.2** - first public version.
