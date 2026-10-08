@@ -35,6 +35,7 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 
 ### Versions
 
+- **1.2.4** - added its own icon.
 - **1.2.3** - removed a harmless warning shown in the console when the script starts.
 - **1.2.2** - first public version.
 
