@@ -1,5 +1,5 @@
 // ============================================================================
-// Dust Lane Enhancer  -  version 1.2.7
+// Dust Lane Enhancer  -  version 1.2.8
 //
 // Deepens dust lanes and dark filaments. It finds them by SHAPE (long, dark
 // ridges) and not by brightness, then darkens only where it found one.
@@ -47,7 +47,7 @@
 #include <pjsr/SampleType.jsh>
 
 #define DLE_TITLE    "Dust Lane Enhancer"
-#define DLE_VERSION  "1.2.7"
+#define DLE_VERSION  "1.2.8"
 #define DLE_KEY      "DustLaneEnhancer/"
 
 // ============================================================================
@@ -678,19 +678,24 @@ function dleRun(sourceWindow, p, cache, held) {
       dleWriteChannel(result.mainView.image, V, 0);
       result.mainView.endProcess();
    } else {
-      result = new ImageWindow(w, h, nch, 32, true, nch === 3, view.id + "_dust");
-      result.mainView.beginProcess(UndoFlag_NoSwapFile);
+      // deepen every channel first ...
+      var done = [];
       for (c = 0; c < nch; ++c) {
          console.writeln("Deepening " + (nch === 3 ? ["red", "green", "blue"][c] : "the image") + "...");
          processEvents();
          // the preview's own copy must stay as it is, so work on a copy of it
          var chan = held ? new Float32Array(channels[c]) : channels[c];
          dleEnhanceChannel(chan, w, h, V, p.maxScale, p.amount, 1);
-         dleWriteChannel(result.mainView.image, chan, c);
+         done.push(chan);
          chan = null;
          if (!held) channels[c] = null;
       }
+      // ... then write them all in one go, with nothing else in between
+      result = new ImageWindow(w, h, nch, 32, true, nch === 3, view.id + "_dust");
+      result.mainView.beginProcess(UndoFlag_NoSwapFile);
+      for (c = 0; c < nch; ++c) dleWriteChannel(result.mainView.image, done[c], c);
       result.mainView.endProcess();
+      done = null;
       try {
          result.keywords = sourceWindow.keywords;   // keep the image's header
       } catch (e) {
