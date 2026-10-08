@@ -35,7 +35,8 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 
 ### Versions
 
-- **1.2.5** - the icon now installs in its own folder, so PixInsight shows it.
+- **1.2.6** - the icon is installed where PixInsight looks for it.
+- **1.2.5** - icon placement corrected.
 - **1.2.4** - added its own icon.
 - **1.2.3** - removed a harmless warning shown in the console when the script starts.
 - **1.2.2** - first public version.
