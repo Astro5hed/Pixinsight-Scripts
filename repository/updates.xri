@@ -4,8 +4,8 @@
       <p>AstroShed scripts for PixInsight.</p>
    </description>
    <platform os="all" arch="noarch" version="1.8.9:1.9.99">
-      <package fileName="DustLaneEnhancer_1.2.8.zip" sha1="b6ef54b6dd7088cc2cf7abd4526ea94dffac7590" type="script" releaseDate="20261008">
-         <title>Dust Lane Enhancer 1.2.8</title>
+      <package fileName="DustLaneEnhancer_1.2.9.zip" sha1="0a240d32c6c787740fa8088463449f9deb306c7f" type="script" releaseDate="20261008">
+         <title>Dust Lane Enhancer 1.2.9</title>
          <description>
             <p>Deepens dust lanes and dark filaments, found by their shape rather than their brightness. Use it on a stretched, preferably starless, image. After installing, it is under Script &gt; AstroShed &gt; Dust Lane Enhancer.</p>
          </description>
