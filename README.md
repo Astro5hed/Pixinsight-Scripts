@@ -1,4 +1,4 @@
-# PixInsight Scripts
+# AstroShed PixInsight Scripts
 
 ## Dust Lane Enhancer
 
@@ -35,10 +35,11 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 
 ### Versions
 
+- **1.2.3** - removed a harmless warning shown in the console when the script starts.
 - **1.2.2** - first public version.
 
 ### How it works
 
 A Frangi "vesselness" measure (Frangi et al., 1998) is taken at four sizes between Smallest and Largest structure on a reduced working copy of the luminance. Each size is weighted by its size squared, so wide shallow lanes are not lost, and the threshold is set from the image's own noise floor, so bright stars do not drown faint lanes. The result is then `image + amount * map * min(image - blurred image, 0)`, so a lane gets darker and nothing is ever made brighter.
 
-From the Dust Lane Enhancer tool by AstroShed (astroshed.co.uk).
+From the Dust Lane Enhancer tool in PhotonWorks by AstroShed (astroshed.co.uk).

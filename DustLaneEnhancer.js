@@ -1,5 +1,5 @@
 // ============================================================================
-// Dust Lane Enhancer  -  version 1.2.2
+// Dust Lane Enhancer  -  version 1.2.3
 //
 // Deepens dust lanes and dark filaments. It finds them by SHAPE (long, dark
 // ridges) and not by brightness, then darkens only where it found one.
@@ -46,7 +46,7 @@
 #include <pjsr/SampleType.jsh>
 
 #define DLE_TITLE    "Dust Lane Enhancer"
-#define DLE_VERSION  "1.2.2"
+#define DLE_VERSION  "1.2.3"
 #define DLE_KEY      "DustLaneEnhancer/"
 
 // ============================================================================
@@ -1234,7 +1234,7 @@ function main() {
    }
    var p = new DLEParameters();
    p.load();
-   var cache = { key: "", det: null, keep: {} };
+   var cache = { key: "", det: null, keep: { lum: null, dw: 0, dh: 0, det: null } };
    var dialog = new DLEDialog(p, cache);
    // The script stays alive here until the window is closed. (While any script
    // runs, PixInsight keeps its own image windows still; the preview is where
