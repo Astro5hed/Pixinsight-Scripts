@@ -1,4 +1,4 @@
-# AstroShed PixInsight Scripts
+# PixInsight Scripts
 
 ## Dust Lane Enhancer
 
