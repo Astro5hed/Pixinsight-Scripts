@@ -1,5 +1,6 @@
 // ============================================================================
-// Dust Lane Enhancer  -  version 1.2.8
+// Dust Lane Enhancer  -  version 1.2.9
+// Copyright (c) 2026 Stewart Oliver, AstroShed. astroshed.co.uk
 //
 // Deepens dust lanes and dark filaments. It finds them by SHAPE (long, dark
 // ridges) and not by brightness, then darkens only where it found one.
@@ -34,7 +35,8 @@
 #feature-icon  @script_icons_dir/DustLaneEnhancer.svg
 #feature-info  Deepens dust lanes and dark filaments, found by their shape \
                rather than their brightness. Works on the active image and \
-               writes the result to a new image.
+               writes the result to a new image. \
+               Copyright &copy; 2026 Stewart Oliver, AstroShed. astroshed.co.uk
 
 #include <pjsr/Sizer.jsh>
 #include <pjsr/NumericControl.jsh>
@@ -47,7 +49,7 @@
 #include <pjsr/SampleType.jsh>
 
 #define DLE_TITLE    "Dust Lane Enhancer"
-#define DLE_VERSION  "1.2.8"
+#define DLE_VERSION  "1.2.9"
 #define DLE_KEY      "DustLaneEnhancer/"
 
 // ============================================================================
@@ -644,6 +646,7 @@ function dleRun(sourceWindow, p, cache, held) {
 
    console.show();
    console.writeln("<end><cbr><br><b>" + DLE_TITLE + " " + DLE_VERSION + "</b>");
+   console.writeln("Copyright \u00A9 2026 Stewart Oliver, AstroShed. astroshed.co.uk");
    console.writeln("Image: " + view.id + "  (" + w + " x " + h + ", " + (nch === 3 ? "colour" : "mono") + ")");
    console.writeln(format("Smallest %.1f px, largest %.1f px, sensitivity %.1f, amount %.2f",
                           p.minScale, p.maxScale, p.sensitivity, p.amount));
@@ -772,6 +775,7 @@ function DLEDialog(p, cache) {
    this.help.wordWrapping = true;
    this.help.useRichText = true;
    this.help.text = "<b>" + DLE_TITLE + " " + DLE_VERSION + "</b><br>" +
+      "Copyright &copy; 2026 Stewart Oliver, AstroShed. astroshed.co.uk<br>" +
       "Finds dust lanes and dark filaments by their shape and deepens them. " +
       "Use it on a stretched image, preferably starless. " +
       "It works on the image that is active when you press Run or Preview; " +
