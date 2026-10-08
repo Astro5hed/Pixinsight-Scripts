@@ -38,6 +38,7 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 2. In PixInsight choose *Script > Execute Script File* and pick it. To have it in the Script menu, use *Script > Feature Scripts*, add the folder you saved it in, and press *Done*.
 
 ### Versions
+- **1.2.9** - shows its author and website (Stewart Oliver, AstroShed).
 - **1.2.8** - fixed Run stopping with "read-only image" when making the result.
 - **1.2.7** - its own AstroShed folder in the Script menu, and its icon now shows.
 - **1.2.4 - 1.2.6** - icon work.
