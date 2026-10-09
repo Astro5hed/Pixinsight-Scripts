@@ -4,6 +4,7 @@
 Before & After Images:
 <img width="1679" height="947" alt="image" src="https://github.com/user-attachments/assets/2d7d7704-5a7d-457c-b6a9-676002d8b520" />
 <img width="1679" height="947" alt="image" src="https://github.com/user-attachments/assets/2afa5719-bc98-46a0-93d1-dbe54a9049c0" />
+<img width="1000" height="761" alt="DustLaneEnhancer" src="https://github.com/user-attachments/assets/558e6af1-3157-4354-a762-7ac534b04d69" />
 
 
 Deepens dust lanes and dark filaments. It finds them by their **shape** (long, dark ridges), not by their brightness, and darkens only where it found one. Flat sky, stars and anything brighter than its surroundings are left alone.
