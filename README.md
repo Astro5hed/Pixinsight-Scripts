@@ -8,8 +8,8 @@ Before & After Images:
 
 Deepens dust lanes and dark filaments. It finds them by their **shape** (long, dark ridges), not by their brightness, and darkens only where it found one. Flat sky, stars and anything brighter than its surroundings are left alone.
 
-- Works on the active image; the result opens as a **new image**, and the original is not changed.
-- A built-in preview, with zoom and pan. From 60% zoom the preview shows full resolution, exactly what Run will produce there.
+- Works on the active image. With **Create a new image** ticked (the default) the result opens as a new image and the original is not changed; unticked, **Apply** changes the image itself, and PixInsight's Undo takes it back.
+- A built-in preview, with zoom and pan. From 60% zoom the preview shows full resolution, exactly what Apply will produce there.
 - Use it on a **stretched** image, preferably a **starless** one: bright stars can leave a faint ring-shaped response.
 
 ### Settings
@@ -20,7 +20,8 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 | Largest structure (px) | The widest lane to look for. Also sets how wide an area each pixel is compared with. |
 | Sensitivity | How faint a lane may be and still be found. Higher reaches fainter structure but picks up more noise. |
 | Enhance amount | How much the lanes found are deepened. 0 changes nothing. |
-| Show detection map | Shows what was found (white = a lane) instead of the result. |
+| Show detection map | Shows what was found (white = a lane) instead of the result. The map always opens as a new image. |
+| Create a new image | Ticked: the result opens as a new image. Unticked: Apply changes the active image itself (Undo takes it back). |
 
 ### Installing
 
@@ -38,6 +39,8 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 2. In PixInsight choose *Script > Execute Script File* and pick it. To have it in the Script menu, use *Script > Feature Scripts*, add the folder you saved it in, and press *Done*.
 
 ### Versions
+
+- **1.3.0** - new window layout: large title, Create a new image option, and a big Apply button (was Run).
 - **1.2.9** - shows its author and website (Stewart Oliver, AstroShed).
 - **1.2.8** - fixed Run stopping with "read-only image" when making the result.
 - **1.2.7** - its own AstroShed folder in the Script menu, and its icon now shows.

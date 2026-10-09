@@ -1,5 +1,5 @@
 // ============================================================================
-// Dust Lane Enhancer  -  version 1.2.9
+// Dust Lane Enhancer  -  version 1.3.0
 // Copyright (c) 2026 Stewart Oliver, AstroShed. astroshed.co.uk
 //
 // Deepens dust lanes and dark filaments. It finds them by SHAPE (long, dark
@@ -24,18 +24,19 @@
 // Use it on a STRETCHED image, and preferably a STARLESS one: bright stars
 // can leave a faint ring-shaped response of their own.
 //
-// The image you run it on is not changed. The result opens as a new image.
-// Preview shows the effect before you run it: wheel to zoom, drag to move.
+// The result opens as a new image, or - with "Create a new image" unticked -
+// goes into the image itself, where PixInsight's Undo takes it back.
+// Preview shows the effect before you apply it: wheel to zoom, drag to move.
 // The whole image is shown from a reduced copy; zoom in and the part you are
 // looking at is worked out from the full-size image: full resolution, with
-// nothing added - exactly what Run gives there.
+// nothing added - exactly what Apply gives there.
 // ============================================================================
 
 #feature-id    DustLaneEnhancer : AstroShed > Dust Lane Enhancer
 #feature-icon  @script_icons_dir/DustLaneEnhancer.svg
 #feature-info  Deepens dust lanes and dark filaments, found by their shape \
                rather than their brightness. Works on the active image and \
-               writes the result to a new image. \
+               writes the result to a new image or into the image itself. \
                Copyright &copy; 2026 Stewart Oliver, AstroShed. astroshed.co.uk
 
 #include <pjsr/Sizer.jsh>
@@ -49,7 +50,7 @@
 #include <pjsr/SampleType.jsh>
 
 #define DLE_TITLE    "Dust Lane Enhancer"
-#define DLE_VERSION  "1.2.9"
+#define DLE_VERSION  "1.3.0"
 #define DLE_KEY      "DustLaneEnhancer/"
 
 // ============================================================================
@@ -543,6 +544,7 @@ function DLEParameters() {
    this.sensitivity = 3.0;
    this.amount = 1.5;
    this.showMap = false;
+   this.newImage = true;   // false: Apply changes the image itself
 
    this.reset = function () {
       this.minScale = 3.0;
@@ -565,6 +567,8 @@ function DLEParameters() {
          if (Settings.lastReadOK) this.amount = v;
          v = Settings.read(DLE_KEY + "showMap", DataType_Boolean);
          if (Settings.lastReadOK) this.showMap = v;
+         v = Settings.read(DLE_KEY + "newImage", DataType_Boolean);
+         if (Settings.lastReadOK) this.newImage = v;
       } catch (e) {
          // no saved settings yet: the defaults stand
       }
@@ -577,6 +581,7 @@ function DLEParameters() {
          Settings.write(DLE_KEY + "sensitivity", DataType_Double, this.sensitivity);
          Settings.write(DLE_KEY + "amount", DataType_Double, this.amount);
          Settings.write(DLE_KEY + "showMap", DataType_Boolean, this.showMap);
+         Settings.write(DLE_KEY + "newImage", DataType_Boolean, this.newImage);
       } catch (e) {
          // not being able to remember the settings must not stop the run
       }
@@ -634,7 +639,10 @@ function dleClamp01(a) {
    return a;
 }
 
-// Runs the tool on a window's image and opens the result as a new image.
+// Runs the tool on a window's image. The result opens as a new image, or
+// (p.newImage false) goes into the image itself as one step Undo can take
+// back. The detection map always opens as a new image. Returns the id of
+// the new image, or "" when the image itself was changed.
 // held (optional): { channels, lum } already read from this image by the
 // preview, so they are not read a second time.
 function dleRun(sourceWindow, p, cache, held) {
@@ -674,7 +682,7 @@ function dleRun(sourceWindow, p, cache, held) {
    var V = dleClamp01(dleEnlarge(det.map, det.w, det.h, w, h));
 
    // 3. the result
-   var result;
+   var result = null;
    if (p.showMap) {
       result = new ImageWindow(w, h, 1, 32, true, false, view.id + "_dust_map");
       result.mainView.beginProcess(UndoFlag_NoSwapFile);
@@ -694,20 +702,34 @@ function dleRun(sourceWindow, p, cache, held) {
          if (!held) channels[c] = null;
       }
       // ... then write them all in one go, with nothing else in between
-      result = new ImageWindow(w, h, nch, 32, true, nch === 3, view.id + "_dust");
-      result.mainView.beginProcess(UndoFlag_NoSwapFile);
-      for (c = 0; c < nch; ++c) dleWriteChannel(result.mainView.image, done[c], c);
-      result.mainView.endProcess();
-      done = null;
-      try {
-         result.keywords = sourceWindow.keywords;   // keep the image's header
-      } catch (e) {
-         // the header is a convenience; the result is still good without it
+      if (p.newImage) {
+         result = new ImageWindow(w, h, nch, 32, true, nch === 3, view.id + "_dust");
+         result.mainView.beginProcess(UndoFlag_NoSwapFile);
+         for (c = 0; c < nch; ++c) dleWriteChannel(result.mainView.image, done[c], c);
+         result.mainView.endProcess();
+         try {
+            result.keywords = sourceWindow.keywords;   // keep the image's header
+         } catch (e) {
+            // the header is a convenience; the result is still good without it
+         }
+      } else {
+         // into the image itself, as one step that PixInsight's Undo can take back
+         view.beginProcess();
+         for (c = 0; c < nch; ++c) dleWriteChannel(view.image, done[c], c);
+         view.endProcess();
       }
+      done = null;
    }
-   result.show();
-   console.writeln(format("Done in %.1f s. Result: ", (new Date().getTime() - started.getTime()) / 1000) + result.mainView.id);
-   console.writeln("The original image was not changed.");
+   var secs = (new Date().getTime() - started.getTime()) / 1000;
+   if (result !== null) {
+      result.show();
+      console.writeln(format("Done in %.1f s. Result: ", secs) + result.mainView.id);
+      console.writeln("The original image was not changed.");
+      return result.mainView.id;
+   }
+   console.writeln(format("Done in %.1f s. Applied to ", secs) + view.id + ".");
+   console.writeln("Undo in PixInsight puts the image back as it was.");
+   return "";
 }
 
 // ----------------------------------------------------------------------------
@@ -771,15 +793,28 @@ function DLEDialog(p, cache) {
    var paintFault = false;
    var labelWidth = this.font.width("Smallest structure (px):") + 8;
 
+   // The title, large, at the very top.
+   this.title = new Label(this);
+   this.title.text = DLE_TITLE;
+   try {
+      var tsize = Math.round(this.font.pointSize * 1.8);
+      if (!(tsize > 0)) throw new Error("no font size");
+      var tf = new Font(this.font.face, tsize);
+      tf.bold = true;
+      this.title.font = tf;
+   } catch (e) {
+      this.title.useRichText = true;
+      this.title.text = "<b><big>" + DLE_TITLE + "</big></b>";
+   }
+
    this.help = new Label(this);
    this.help.wordWrapping = true;
    this.help.useRichText = true;
-   this.help.text = "<b>" + DLE_TITLE + " " + DLE_VERSION + "</b><br>" +
-      "Copyright &copy; 2026 Stewart Oliver, AstroShed. astroshed.co.uk<br>" +
+   this.help.text = "Version " + DLE_VERSION + "<br>" +
+      "Copyright &copy; 2026 Stewart Oliver, AstroShed. astroshed.co.uk<br><br>" +
       "Finds dust lanes and dark filaments by their shape and deepens them. " +
       "Use it on a stretched image, preferably starless. " +
-      "It works on the image that is active when you press Run or Preview; " +
-      "the result opens as a new image and the original is not changed.";
+      "It works on the image that is active when you press Apply or Preview.";
    this.help.minWidth = 506;
 
    this.status = new Label(this);
@@ -1138,8 +1173,16 @@ function DLEDialog(p, cache) {
    this.showMap.text = "Show detection map";
    this.showMap.checked = p.showMap;
    this.showMap.toolTip = "<p>Shows what was FOUND (white = a lane) in place of the result, " +
-      "in the preview and when you press Run. Use it to tune the three settings above.</p>";
+      "in the preview and when you press Apply. Use it to tune the three settings above.</p>";
    this.showMap.onCheck = function (checked) { p.showMap = checked; if (dlg.previewBox.visible && !busy) redraw(); };
+
+   this.newImage = new CheckBox(this);
+   this.newImage.text = "Create a new image";
+   this.newImage.checked = p.newImage;
+   this.newImage.toolTip = "<p>Ticked: Apply opens the result as a new image and your image is " +
+      "not changed.</p><p>Unticked: Apply changes the active image itself; PixInsight's Undo " +
+      "takes it back. (The detection map always opens as a new image.)</p>";
+   this.newImage.onCheck = function (checked) { p.newImage = checked; };
 
    this.reset_Button = new PushButton(this);
    this.reset_Button.text = "Reset";
@@ -1157,7 +1200,7 @@ function DLEDialog(p, cache) {
    this.preview_Button = new PushButton(this);
    this.preview_Button.text = "Preview";
    this.preview_Button.toolTip = "<p>Opens or closes the preview: the effect on a reduced copy " +
-      "of the active image, before you run it on the whole image.</p>";
+      "of the active image, before you apply it to the whole image.</p>";
    // Fills the preview for the first time (called once the window is up).
    this.startPreview = function () { st.viewId = ""; refresh(); };
 
@@ -1168,23 +1211,45 @@ function DLEDialog(p, cache) {
    };
 
    this.ok_Button = new PushButton(this);
-   this.ok_Button.text = "Run";
-   this.ok_Button.toolTip = "<p>Runs on the whole of the active image and opens the result as a new image.</p>";
+   this.ok_Button.text = "Apply";
+   this.ok_Button.toolTip = "<p>Applies the settings to the whole of the active image: as a new " +
+      "image, or to the image itself if Create a new image is unticked.</p>";
+   this.ok_Button.minHeight = 40;
+   try {
+      var bsize = Math.round(this.font.pointSize * 1.25);
+      if (!(bsize > 0)) throw new Error("no font size");
+      var bf = new Font(this.font.face, bsize);
+      bf.bold = true;
+      this.ok_Button.font = bf;
+   } catch (e) {
+      // the normal font will do
+   }
    this.ok_Button.onClick = function () {
       if (busy || !sizesOk()) return;
       var win = activeWindowOrNull();
       if (win === null) return;
       busy = true;
       p.save();
-      say("Running on " + win.mainView.id + "...");
+      var id = win.mainView.id;
+      say("Applying to " + id + "...");
+      var made = null;
       try {
-         dleRun(win, p, cache, (st.full && st.viewId === win.mainView.id) ? { channels: st.full, lum: st.lum } : null);
-         say("Done: " + win.mainView.id + (p.showMap ? "_dust_map" : "_dust") + " opened.");
+         made = dleRun(win, p, cache, (st.full && st.viewId === id) ? { channels: st.full, lum: st.lum } : null);
       } catch (e) {
          console.criticalln("Dust Lane Enhancer stopped: " + e);
          say("Stopped with an error - see the console.");
       }
       busy = false;
+      if (made === "") {
+         // the image itself changed: what the preview and the detection held is out of date
+         cache.key = "";
+         cache.det = null;
+         st.viewId = "";
+         if (dlg.previewBox.visible) refresh();
+         say("Done: applied to " + id + ". Undo in PixInsight takes it back.");
+      } else if (made !== null) {
+         say("Done: " + made + " opened.");
+      }
    };
 
    this.cancel_Button = new PushButton(this);
@@ -1193,16 +1258,15 @@ function DLEDialog(p, cache) {
 
    this.buttons = new HorizontalSizer;
    this.buttons.spacing = 6;
-   this.buttons.add(this.reset_Button);
-   this.buttons.add(this.preview_Button);
-   this.buttons.addStretch();
-   this.buttons.add(this.ok_Button);
-   this.buttons.add(this.cancel_Button);
+   this.buttons.add(this.reset_Button, 100);
+   this.buttons.add(this.preview_Button, 100);
+   this.buttons.add(this.cancel_Button, 100);
 
    // The settings keep one width, so the window is no wider than it needs to be.
    this.leftBox = new Control(this);
    this.left = new VerticalSizer;
    this.left.spacing = 6;
+   this.left.add(this.title);
    this.left.add(this.help);
    this.left.addSpacing(4);
    this.left.add(this.minScale);
@@ -1210,9 +1274,12 @@ function DLEDialog(p, cache) {
    this.left.add(this.sensitivity);
    this.left.add(this.amount);
    this.left.add(this.showMap);
+   this.left.add(this.newImage);
    this.left.addSpacing(4);
    this.left.add(this.status);
    this.left.add(this.buttons);
+   this.left.addSpacing(6);
+   this.left.add(this.ok_Button);
    this.left.addStretch();
    this.leftBox.sizer = this.left;
    this.leftBox.setFixedWidth(540);
