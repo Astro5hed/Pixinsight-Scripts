@@ -1,5 +1,5 @@
 // ============================================================================
-// Dust Lane Enhancer  -  version 1.3.0
+// Dust Lane Enhancer  -  version 1.3.1
 // Copyright (c) 2026 Stewart Oliver, AstroShed. astroshed.co.uk
 //
 // Deepens dust lanes and dark filaments. It finds them by SHAPE (long, dark
@@ -50,7 +50,7 @@
 #include <pjsr/SampleType.jsh>
 
 #define DLE_TITLE    "Dust Lane Enhancer"
-#define DLE_VERSION  "1.3.0"
+#define DLE_VERSION  "1.3.1"
 #define DLE_KEY      "DustLaneEnhancer/"
 
 // ============================================================================
@@ -634,6 +634,57 @@ function dleLuminance(channels, n) {
    return lum;
 }
 
+// The image's mask, as PixInsight shows it in red: where the mask is white
+// (clear on screen) the result is used in full, where it is black (red on
+// screen) the image is left as it was, and in between it is partly used.
+// Returns null when the image has no mask, the mask is switched off, or it
+// does not match the image's size. ch: 1 or 3 Float32Arrays, already inverted
+// when the mask is set to inverted.
+function dleMaskOf(win, w, h) {
+   try {
+      if (!win.maskEnabled) return null;
+      var mw = win.mask;
+      if (!mw || mw.isNull) return null;
+      var mi = mw.mainView.image;
+      if (mi.width !== w || mi.height !== h) {
+         console.warningln("The mask " + mw.mainView.id + " is not the same size as the image, so it was not used.");
+         return null;
+      }
+      var n = mi.isColor ? 3 : 1, ch = [];
+      for (var c = 0; c < n; ++c) {
+         var m = dleReadChannel(mi, c);
+         if (win.maskInverted) for (var i = 0; i < m.length; ++i) m[i] = 1 - m[i];
+         ch.push(m);
+      }
+      return { id: mw.mainView.id, inverted: !!win.maskInverted, ch: ch };
+   } catch (e) {
+      console.warningln("The image's mask could not be read, so it was not used: " + e);
+      return null;
+   }
+}
+
+// The mask channel to use for image channel c of an image with nch channels.
+function dleMaskChannel(mask, c, nch) {
+   if (mask.ch.length === 3 && nch === 3) return mask.ch[c];
+   if (mask.ch.length === 1) return mask.ch[0];
+   if (!mask.grey) {                       // a colour mask on a mono image: its average
+      var a = mask.ch[0], b = mask.ch[1], d = mask.ch[2], g = new Float32Array(a.length);
+      for (var i = 0; i < g.length; ++i) g[i] = (a[i] + b[i] + d[i]) / 3;
+      mask.grey = g;
+   }
+   return mask.grey;
+}
+
+// out = original + mask * (out - original), in place in out.
+function dleMaskBlend(out, orig, m) {
+   for (var i = 0; i < out.length; ++i) out[i] = orig[i] + m[i] * (out[i] - orig[i]);
+}
+
+// A short description for the console and the status line.
+function dleMaskText(mask) {
+   return mask ? "mask " + mask.id + (mask.inverted ? " (inverted)" : "") : "no mask";
+}
+
 function dleClamp01(a) {
    for (var i = 0; i < a.length; ++i) a[i] = (a[i] < 0) ? 0 : (a[i] > 1 ? 1 : a[i]);
    return a;
@@ -658,6 +709,8 @@ function dleRun(sourceWindow, p, cache, held) {
    console.writeln("Image: " + view.id + "  (" + w + " x " + h + ", " + (nch === 3 ? "colour" : "mono") + ")");
    console.writeln(format("Smallest %.1f px, largest %.1f px, sensitivity %.1f, amount %.2f",
                           p.minScale, p.maxScale, p.sensitivity, p.amount));
+   var mask = p.showMap ? null : dleMaskOf(sourceWindow, w, h);
+   if (!p.showMap) console.writeln(mask ? "Using the " + dleMaskText(mask) + "." : "No mask in use.");
    processEvents();
 
    // 1. luminance
@@ -696,7 +749,9 @@ function dleRun(sourceWindow, p, cache, held) {
          processEvents();
          // the preview's own copy must stay as it is, so work on a copy of it
          var chan = held ? new Float32Array(channels[c]) : channels[c];
+         var orig = mask ? (held ? channels[c] : new Float32Array(channels[c])) : null;
          dleEnhanceChannel(chan, w, h, V, p.maxScale, p.amount, 1);
+         if (mask) { dleMaskBlend(chan, orig, dleMaskChannel(mask, c, nch)); orig = null; }
          done.push(chan);
          chan = null;
          if (!held) channels[c] = null;
@@ -774,6 +829,7 @@ function DLEPreviewState() {
    this.pw = 0; this.ph = 0;        // the reduced copy
    this.lum = null;                 // full-size luminance, for the detection
    this.full = null;                // the full-size channels, for the zoomed-in view and for Run
+   this.mask = null; this.maskSmall = null;   // the image's mask, full size and reduced (see MaskOf)
    this.sharp = null;               // the zoomed-in view: one rectangle in real pixels (see sharpen)
    this.small = null;               // the reduced copy's channels
    this.Vp = null; this.VpKey = ""; // the detection map at the reduced copy's size
@@ -973,6 +1029,7 @@ function DLEDialog(p, cache) {
                var v = src[i] + amt * dk[i];
                a[i] = (v < 0) ? 0 : (v > 1 ? 1 : v);
             }
+            if (st.maskSmall) dleMaskBlend(a, src, st.maskSmall[c]);
             shown.push(a);
          }
       }
@@ -1002,6 +1059,7 @@ function DLEDialog(p, cache) {
                var v = src[i] + amt * dk[i];
                a[i] = (v < 0) ? 0 : (v > 1 ? 1 : v);
             }
+            if (sh.mask) dleMaskBlend(a, src, sh.mask[c]);
             shown.push(a);
          }
       }
@@ -1034,6 +1092,10 @@ function DLEDialog(p, cache) {
          sh = { key: st.VpKey, x0: x0, y0: y0, rw: rw, rh: rh, crop: [], dark: [], bitmap: null };
          sh.Vr = dleClamp01(dleEnlargeRegion(det.map, det.w, det.h, st.w, st.h, x0, y0, rw, rh));
          for (var c = 0; c < st.full.length; ++c) {
+            if (st.mask) {
+               if (!sh.mask) sh.mask = [];
+               sh.mask.push(dleCrop(dleMaskChannel(st.mask, c, st.full.length), st.w, x0, y0, rw, rh));
+            }
             sh.crop.push(dleCrop(st.full[c], st.w, x0, y0, rw, rh));
             sh.dark.push(dleRegionDark(st.full[c], st.w, st.h, sh.Vr, x0, y0, rw, rh, p.maxScale));
          }
@@ -1087,6 +1149,13 @@ function DLEDialog(p, cache) {
             st.ph = Math.max(1, Math.round(st.h * f));
             st.small = [];
             for (c = 0; c < nch; ++c) st.small.push(dleResizeArea(full[c], st.w, st.h, st.pw, st.ph));
+            st.mask = dleMaskOf(win, st.w, st.h);
+            st.maskSmall = null;
+            if (st.mask) {
+               st.maskSmall = [];
+               for (c = 0; c < nch; ++c)
+                  st.maskSmall.push(dleResizeArea(dleMaskChannel(st.mask, c, nch), st.w, st.h, st.pw, st.ph));
+            }
             st.lum = (nch === 1) ? full[0] : dleLuminance(full, st.w * st.h);
             st.full = full;
             st.sharp = null;
@@ -1105,7 +1174,7 @@ function DLEDialog(p, cache) {
             st.VpKey = key;
          }
          redraw();
-         say("Preview of " + st.viewId + ". Zoom to 60% or more for full resolution.");
+         say("Preview of " + st.viewId + (st.mask ? ", through the " + dleMaskText(st.mask) : "") + ". Zoom to 60% or more for full resolution.");
          busy = false;
          sharpen();
       } catch (e) {
