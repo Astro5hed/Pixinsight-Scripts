@@ -10,6 +10,7 @@ Before & After Images:
 Deepens dust lanes and dark filaments. It finds them by their **shape** (long, dark ridges), not by their brightness, and darkens only where it found one. Flat sky, stars and anything brighter than its surroundings are left alone.
 
 - Works on the active image. With **Create a new image** ticked (the default) the result opens as a new image and the original is not changed; unticked, **Apply** changes the image itself, and PixInsight's Undo takes it back.
+- Works through the image's **mask**: areas shown red are left unchanged and clear areas get the full effect, in the preview and on Apply. Inverted masks work too.
 - A built-in preview, with zoom and pan. From 60% zoom the preview shows full resolution, exactly what Apply will produce there.
 - Use it on a **stretched** image, preferably a **starless** one: bright stars can leave a faint ring-shaped response.
 
@@ -41,6 +42,7 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 
 ### Versions
 
+- **1.3.1** - now works through the image's mask (as PixInsight shows it in red), in the preview and on Apply.
 - **1.3.0** - new window layout: large title, Create a new image option, and a big Apply button (was Run).
 - **1.2.9** - shows its author and website (Stewart Oliver, AstroShed).
 - **1.2.8** - fixed Run stopping with "read-only image" when making the result.
@@ -54,4 +56,4 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 
 A Frangi "vesselness" measure (Frangi et al., 1998) is taken at four sizes between Smallest and Largest structure on a reduced working copy of the luminance. Each size is weighted by its size squared, so wide shallow lanes are not lost, and the threshold is set from the image's own noise floor, so bright stars do not drown faint lanes. The result is then `image + amount * map * min(image - blurred image, 0)`, so a lane gets darker and nothing is ever made brighter.
 
-Dust Lane Enhancer by AstroShed (astroshed.co.uk).
+From the Dust Lane Enhancer tool by AstroShed (astroshed.co.uk).
