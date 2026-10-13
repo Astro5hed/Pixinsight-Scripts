@@ -1,5 +1,5 @@
 // ============================================================================
-// Dust Lane Enhancer  -  version 1.3.1
+// Dust Lane Enhancer  -  version 1.3.2
 // Copyright (c) 2026 Stewart Oliver, AstroShed. astroshed.co.uk
 //
 // Deepens dust lanes and dark filaments. It finds them by SHAPE (long, dark
@@ -50,7 +50,7 @@
 #include <pjsr/SampleType.jsh>
 
 #define DLE_TITLE    "Dust Lane Enhancer"
-#define DLE_VERSION  "1.3.1"
+#define DLE_VERSION  "1.3.2"
 #define DLE_KEY      "DustLaneEnhancer/"
 
 // ============================================================================
