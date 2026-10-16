@@ -1,5 +1,5 @@
 // ============================================================================
-// Dust Lane Enhancer  -  version 1.3.2
+// Dust Lane Enhancer  -  version 1.3.3
 // Copyright (c) 2026 Stewart Oliver, AstroShed. astroshed.co.uk
 //
 // Deepens dust lanes and dark filaments. It finds them by SHAPE (long, dark
@@ -50,7 +50,7 @@
 #include <pjsr/SampleType.jsh>
 
 #define DLE_TITLE    "Dust Lane Enhancer"
-#define DLE_VERSION  "1.3.2"
+#define DLE_VERSION  "1.3.3"
 #define DLE_KEY      "DustLaneEnhancer/"
 
 // ============================================================================
@@ -680,6 +680,24 @@ function dleMaskBlend(out, orig, m) {
    for (var i = 0; i < out.length; ++i) out[i] = orig[i] + m[i] * (out[i] - orig[i]);
 }
 
+// The picture with the mask drawn on it the way PixInsight shows a mask:
+// protected areas (mask black) tinted red, partly open areas partly red.
+// Display only. shown: 1 or 3 channels; maskCh: the mask's channels at the
+// same size. Returns 3 new channels; shown is not changed.
+function dleMaskTint(shown, maskCh) {
+   var n = shown[0].length, k = maskCh.length;
+   var R = new Float32Array(n), G = new Float32Array(n), B = new Float32Array(n);
+   var r = shown[0], g = shown.length === 3 ? shown[1] : shown[0], b = shown.length === 3 ? shown[2] : shown[0];
+   for (var i = 0; i < n; ++i) {
+      var m = (k === 3) ? (maskCh[0][i] + maskCh[1][i] + maskCh[2][i]) / 3 : maskCh[0][i];
+      var o = 0.5 * (1 - m);             // how much red: 0 where the mask is open
+      R[i] = r[i] * (1 - o) + o;
+      G[i] = g[i] * (1 - o);
+      B[i] = b[i] * (1 - o);
+   }
+   return [R, G, B];
+}
+
 // A short description for the console and the status line.
 function dleMaskText(mask) {
    return mask ? "mask " + mask.id + (mask.inverted ? " (inverted)" : "") : "no mask";
@@ -984,6 +1002,14 @@ function DLEDialog(p, cache) {
    this.showOriginal.toolTip = "<p>Tick to see the image as it is, untick to see the result: flick between the two.</p>";
    this.showOriginal.onCheck = function () { redraw(); };
 
+   this.showMask = new CheckBox(this);
+   this.showMask.text = "Show mask";
+   this.showMask.checked = true;
+   this.showMask.visible = false;          // only while the image has a mask in use
+   this.showMask.toolTip = "<p>Shows the image's mask in red, as PixInsight does: red areas are " +
+      "protected and are not changed. Display only - it does not change the result.</p>";
+   this.showMask.onCheck = function () { redraw(); };
+
    this.fit_Button = new PushButton(this);
    this.fit_Button.text = "Fit";
    this.fit_Button.toolTip = "<p>Shows the whole picture.</p>";
@@ -997,6 +1023,7 @@ function DLEDialog(p, cache) {
    this.paneBar = new HorizontalSizer;
    this.paneBar.spacing = 6;
    this.paneBar.add(this.showOriginal);
+   this.paneBar.add(this.showMask);
    this.paneBar.addStretch();
    this.paneBar.add(this.fit_Button);
    this.paneBar.add(this.update_Button);
@@ -1033,6 +1060,8 @@ function DLEDialog(p, cache) {
             shown.push(a);
          }
       }
+      if (dlg.showMask.checked && st.maskSmall && !(p.showMap && !dlg.showOriginal.checked))
+         shown = dleMaskTint(shown, st.maskSmall);
       st.bitmap = dleBitmap(shown, st.pw, st.ph);
       if (st.sharp && st.sharp.key === st.VpKey) sharpBitmap();
       else st.sharp = null;
@@ -1063,6 +1092,8 @@ function DLEDialog(p, cache) {
             shown.push(a);
          }
       }
+      if (dlg.showMask.checked && sh.mask && (dlg.showOriginal.checked || !p.showMap))
+         shown = dleMaskTint(shown, sh.mask);
       sh.bitmap = dleBitmap(shown, sh.rw, sh.rh);
    }
 
@@ -1156,6 +1187,7 @@ function DLEDialog(p, cache) {
                for (c = 0; c < nch; ++c)
                   st.maskSmall.push(dleResizeArea(dleMaskChannel(st.mask, c, nch), st.w, st.h, st.pw, st.ph));
             }
+            dlg.showMask.visible = !!st.mask;
             st.lum = (nch === 1) ? full[0] : dleLuminance(full, st.w * st.h);
             st.full = full;
             st.sharp = null;

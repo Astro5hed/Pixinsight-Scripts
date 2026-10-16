@@ -10,7 +10,7 @@ Before & After Images:
 Deepens dust lanes and dark filaments. It finds them by their **shape** (long, dark ridges), not by their brightness, and darkens only where it found one. Flat sky, stars and anything brighter than its surroundings are left alone.
 
 - Works on the active image. With **Create a new image** ticked (the default) the result opens as a new image and the original is not changed; unticked, **Apply** changes the image itself, and PixInsight's Undo takes it back.
-- Works through the image's **mask**: areas shown red are left unchanged and clear areas get the full effect, in the preview and on Apply. Inverted masks work too.
+- Works through the image's **mask**: areas shown red are left unchanged and clear areas get the full effect, in the preview and on Apply. The preview shows the mask in red too (Show mask). Inverted masks work too.
 - A built-in preview, with zoom and pan. From 60% zoom the preview shows full resolution, exactly what Apply will produce there.
 - Use it on a **stretched** image, preferably a **starless** one: bright stars can leave a faint ring-shaped response.
 
@@ -42,6 +42,7 @@ Deepens dust lanes and dark filaments. It finds them by their **shape** (long, d
 
 ### Versions
 
+- **1.3.3** - the preview now shows the image's mask in red (Show mask), as PixInsight does.
 - **1.3.2** - now code-signed by AstroShed (Certified PixInsight Developer). No other changes.
 - **1.3.1** - now works through the image's mask (as PixInsight shows it in red), in the preview and on Apply.
 - **1.3.0** - new window layout: large title, Create a new image option, and a big Apply button (was Run).
