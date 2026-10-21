@@ -10,6 +10,12 @@
             <p>Deepens dust lanes and dark filaments, found by their shape rather than their brightness. Use it on a stretched, preferably starless, image. After installing, it is under Script &gt; AstroShed &gt; Dust Lane Enhancer.</p>
          </description>
       </package>
+      <package fileName="BrightFilamentEnhancer_1.1.2.zip" sha1="18e0f1541d38efe39d093a3bb427242a933c14b7" type="script" releaseDate="20261021">
+         <title>Bright Filament Enhancer 1.1.2</title>
+         <description>
+            <p>Brightens thin bright filaments, found by their shape rather than their brightness. Use it on a stretched, starless image. After installing, it is under Script &gt; AstroShed &gt; Bright Filament Enhancer.</p>
+         </description>
+      </package>
    </platform>
 </xri>
-<Signature developerId="AstroShed" timestamp="2026-10-16T09:28:19.571Z" encoding="Base64">4kT5M7/n0yoixuFunXmNBi1qyHhphP3GQgVOVUT+F5QbfgII4nxQJUX4Zt6BPMdcWNJESIAQJw84zTk7cC4pCg==</Signature>
+<Signature developerId="AstroShed" timestamp="2026-10-21T11:07:27.352Z" encoding="Base64">yGBKdaVby62QYkJTEHsfcfFLOYhBBdF9RJSRn7INTxTb0hW0gCug2JIUj4mXHkTQwb+5JzvJKtr3XZ+JCajQCw==</Signature>
