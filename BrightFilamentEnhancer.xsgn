@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+PixInsight XML Code Signature Format - XSGN version 1.0
+Created with PixInsight software - https://pixinsight.com/
+-->
+<xsgn version="1.0" xmlns="http://www.pixinsight.com/xsgn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.pixinsight.com/xsgn http://pixinsight.com/xsgn/xsgn-1.0.xsd">
+   <CreationTime>2026-10-21T10:52:58.119Z</CreationTime>
+   <Signature version="1.0" scriptId="BrightFilamentEnhancer" developerId="AstroShed">
+      <Timestamp>2026-10-21T10:52:58.118Z</Timestamp>
+      <CodeSignature encoding="Base64">8aavMTg6SOj0GnL0AFgzdvvW5LW5407OUaQN13EGFredH9nOrRk9T4RNg8VSyNYU3RF41w+vmaTDFVrZPyMrBw==</CodeSignature>
+   </Signature>
+</xsgn>
