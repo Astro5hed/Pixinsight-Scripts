@@ -98,3 +98,5 @@ By hand: download `BrightFilamentEnhancer.js` from this page and use *Script > E
 The same method as Dust Lane Enhancer, turned the other way: a Frangi "vesselness" measure (Frangi et al., 1998) of bright ridges is taken at four sizes between Smallest and Largest structure on a reduced working copy of the luminance, each size weighted by its size squared, with the threshold set from the image's own noise floor. The lift is `map * max(image - blurred image, 0)`, and the result is `image + (1 - image) * (1 - exp(-amount * lift / (1 - image)))`, which is `image + amount * lift` for small lifts but eases off towards white.
 
 From the Dust Lane Enhancer tool by AstroShed (astroshed.co.uk).
+
+<a href="https://www.buymeacoffee.com/astroshed" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" style="height: 60px !important;width: 217px !important;" ></a>
