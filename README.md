@@ -1,4 +1,4 @@
-# PixInsight Scripts
+<h1 align="center">PixInsight Scripts</h1>
 
 ## Dust Lane Enhancer
 Before & After Images:
